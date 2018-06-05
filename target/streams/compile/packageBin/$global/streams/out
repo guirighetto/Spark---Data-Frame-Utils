@@ -1,0 +1,33 @@
+[0m[[0m[0minfo[0m] [0m[0mPackaging /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/simple-project_2.11-1.0.jar ...[0m
+[0m[[0m[0mdebug[0m] [0m[0mInput file mappings:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$merge$3.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$merge$3.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$typecreator25$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$typecreator25$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$merge$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$merge$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$merge$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$merge$2.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$renameColumnsMap$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$renameColumnsMap$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$4.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$4.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$anonfun$3.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$anonfun$3.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia[0m
+[0m[[0m[0mdebug[0m] [0m[0m	ia/domrock/spark/DataFrameUtils$$typecreator17$1.class[0m
+[0m[[0m[0mdebug[0m] [0m[0m	  /home/domrock/Documentos/DomRock/Teste_Spark/scripts/target/scala-2.11/classes/ia/domrock/spark/DataFrameUtils$$typecreator17$1.class[0m
+[0m[[0m[0minfo[0m] [0m[0mDone packaging.[0m

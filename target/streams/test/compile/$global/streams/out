@@ -1,0 +1,7 @@
+[0m[[0m[31merror[0m] [0m[0m/home/domrock/Documentos/DomRock/Teste_Spark/scripts/src/test/scala/ia/domrock/spark/DataFrameUtilsTest.scala:134:32: illegal start of simple expression[0m
+[0m[[0m[31merror[0m] [0m[0m                               )[0m
+[0m[[0m[31merror[0m] [0m[0m                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/home/domrock/Documentos/DomRock/Teste_Spark/scripts/src/test/scala/ia/domrock/spark/DataFrameUtilsTest.scala:148:5: ')' expected but '}' found.[0m
+[0m[[0m[31merror[0m] [0m[0m    }[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m
