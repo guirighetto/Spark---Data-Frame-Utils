@@ -1,4 +1,3 @@
-
 package com.lib.spark
 
 import org.apache.spark.sql.SparkSession
@@ -6,8 +5,10 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.Column
 import scala.collection.mutable.ArrayBuffer
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.Row
 
-object DataFrameUtils
+object DataFrameUtils 
 {
     val spark = SparkSession.builder.appName("Data Frame Utils").getOrCreate()
 
@@ -16,7 +17,7 @@ object DataFrameUtils
     /**
     * dropColumns
     *
-    * This method drop columns of Data Frame using seq.
+    * This method drop columns of Data Frame using Array.
     *
     * @param df Data Frame to be drop columns
     * @param columns Array with name columns
@@ -30,8 +31,8 @@ object DataFrameUtils
     /**
     * renameColumnsArray
     *
-    * This method rename columns of data frame using seq.
-    * The Seq with the new names must obey the order of the columns that will be replaced
+    * This method rename columns of data frame using Array.
+    * The Array with the new names must obey the order of the columns that will be replaced
     *
     * @param df Data Frame to be renamed
     * @param columns Array with new name columns
@@ -66,38 +67,75 @@ object DataFrameUtils
     * @param dfRight Data Frame right to be merged
     * @param leftOn Keys of left Data Frame
     * @param rightOn Keys of right Data Frame
+    * @param complexOn Conditions that are not exclusively about equality between keys. 
+                       The condition is expected to be ready and when this parameter 
+                       is filled no name processing is performed, so it is necessary to treat the field names.
     * @param how Type of merge (Default: "outer")
-    * @param sufixes List of sufixes for left and right Data Frame (Default: ["_x", "_y"])
+    * @param suffixes List of sufixes for left and right Data Frame (Default: ["_x", "_y"])
     * @param indicator Adds a column to output Data Frame called “_merge” with information on the source of each row.
     *                  Information column is Categorical-type and takes on a value of “left_only” 
     *                  for observations whose merge key only appears in ‘left’ Data Frame, 
     *                  “right_only” for observations whose merge key only appears in ‘right’ Data Frame, 
     *                  and “both” if the observation’s merge key is found in both
+    * @param allSuffixes A flag used to define whether suffixes in all columns or only in their 
+                         equal columns is a feature that can not occur as keys
     * @return a Data Frame merged
     */
-    def merge(dfLeft: DataFrame, dfRight: DataFrame, leftOn: Array[String], rightOn: Array[String], how: String = "outer", sufixes: Array[String] = Array("_x","_y"), indicator: Boolean = false) : DataFrame  =
+    /**  
+    * TODO
+    * Tratar as condicoes complexas, ou seja, criar um analisador de condicoes
+    * para realizar tratamentos de sufixos para colunas iguais
+    */  
+    def merge(dfLeft: DataFrame, 
+              dfRight: DataFrame, 
+              leftOn: Array[String] = Array(), 
+              rightOn: Array[String] = Array(), 
+              complexOn: Column = col("null"), 
+              how: String = "outer", 
+              suffixes: Array[String] = Array("_x","_y"), 
+              indicator: Boolean = false, 
+              allSuffixes: Boolean = false) : DataFrame  =
     {
         if(leftOn.size != rightOn.size)
-        {
-            println("[ERROR] leftOn and rightOn have different sizes")
-            return  Seq.empty[(String)].toDF("error")
-        }
+            throw new IllegalArgumentException("leftOn and rightOn have different sizes")
+
+        if(complexOn != col("null"))
+            return dfLeft.join(dfRight, complexOn, how)
 
         val dataColumns1 = dfLeft.columns.toArray
         val dataColumns2 = dfRight.columns.toArray
 
-        val newDataColumns1  = dataColumns1.map(x => x + sufixes(0))
-        val newDataColumns2  = dataColumns2.map(x => x + sufixes(1))
+        val (dfRenamed1, dfRenamed2, newLeftOn, newRightOn) = if(allSuffixes)
+        {
+            val newDataColumns1 = dataColumns1.map(x => x + suffixes(0))
+            val newDataColumns2 = dataColumns2.map(x => x + suffixes(1))
 
-        val mapDataColumns1 = (dataColumns1 zip newDataColumns1).toMap
-        val dfRenamed1 = renameColumnsMap(dfLeft, mapDataColumns1)
+            val mapDataColumns1 = (dataColumns1 zip newDataColumns1).toMap
+            val dfRenamed1 = renameColumnsMap(dfLeft, mapDataColumns1)
 
-        val mapDataColumns2 = (dataColumns2 zip newDataColumns2).toMap
-        val dfRenamed2 = renameColumnsMap(dfRight, mapDataColumns2)
+            val mapDataColumns2 = (dataColumns2 zip newDataColumns2).toMap
+            val dfRenamed2 = renameColumnsMap(dfRight, mapDataColumns2)
 
-        val newLeftOn  = leftOn.map(x => x + sufixes(0))
-        val newRightOn  = rightOn.map(x => x + sufixes(1))
+            val newLeftOn = leftOn.map(x => x + suffixes(0))
+            val newRightOn = rightOn.map(x => x + suffixes(1))
 
+            (dfRenamed1, dfRenamed2, newLeftOn, newRightOn)
+        }
+        else
+        {
+            val equalColumns = dataColumns1.intersect(dataColumns2)
+            val newLeftColumns = dataColumns1.map(x => if(equalColumns.contains(x)) x + suffixes(0) else x)
+            val newRightColumns = dataColumns2.map(x => if(equalColumns.contains(x)) x + suffixes(1) else x)
+
+            val dfRenamed1 = renameColumnsArray(dfLeft, newLeftColumns)
+            val dfRenamed2 = renameColumnsArray(dfRight, newRightColumns)
+
+            val newLeftOn = leftOn.map(x => if(equalColumns.contains(x)) x + suffixes(0) else x)
+            val newRightOn = rightOn.map(x => if(equalColumns.contains(x)) x + suffixes(1) else x)
+
+            (dfRenamed1, dfRenamed2, newLeftOn, newRightOn)
+        }
+        
         var cond = dfRenamed1(newLeftOn(0)) === dfRenamed2(newRightOn(0))
         for(i <- 1 until leftOn.size)
         {
@@ -157,15 +195,24 @@ object DataFrameUtils
     {
         if(axis == 0)
         {
-            return dfLeft.union(dfRight)
+            val colummsLeft = dfLeft.columns.toSet
+            val columnsRight = dfRight.columns.toSet
+            val totalColumns = colummsLeft ++ columnsRight
+
+            val selectColumnsLeft = totalColumns.toList.map(x => if(colummsLeft.contains(x)) col(x) else lit(null).as(x))
+            val selectColumnsRight = totalColumns.toList.map(x => if(columnsRight.contains(x)) col(x) else lit(null).as(x))
+
+            val dfSelectedLeft = dfLeft.select(selectColumnsLeft:_*)
+            val dfSelectedRight = dfRight.select(selectColumnsRight:_*)
+
+            return dfSelectedLeft.union(dfSelectedRight)
         }
         else if(axis == 1)
         {
             val dfLeftId = dfLeft.withColumn("idLeft", monotonicallyIncreasingId)
             val dfRightId = dfRight.withColumn("idRight", monotonicallyIncreasingId)
 
-            val cond = dfLeftId("idLeft") === dfRightId("idRight")
-            val dfJoin = dfLeftId.join(dfRightId, cond, "outer")
+            val dfJoin = merge(dfLeftId, dfRightId, leftOn=Array("idLeft"), rightOn=Array("idRight"))
 
             val dfResult = dropColumns(dfJoin, Array("idLeft", "idRight"))
 
@@ -173,7 +220,7 @@ object DataFrameUtils
         }
         else
         {
-            return  Seq.empty[(String)].toDF("error")
+            throw new IllegalArgumentException("Axis not found. Should be 0 or 1")
         }
     }
 }

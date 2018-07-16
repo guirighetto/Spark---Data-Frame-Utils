@@ -1,6 +1,10 @@
 package com.lib.spark
 
-import com.lib.spark.DataFrameUtils._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.junit.Test
+import org.junit.Assert._
+import ai.domrock.spark.DataFrameUtils._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
@@ -12,7 +16,7 @@ import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 import org.apache.spark.sql.types._
 
-
+@RunWith(classOf[JUnitRunner])
 class DataFrameUtilsTest extends FunSuite
 {
     val conf = new SparkConf()
@@ -60,7 +64,7 @@ class DataFrameUtilsTest extends FunSuite
         assert(dfResult.columns.toArray === Array("ovo", "foo", "bar"))
     }
 
-    test("Spark Concat - Index") 
+    test("Spark Concat - Index - 1") 
     {
         val schema = Array(StructField("a", IntegerType, true),
                            StructField("b", IntegerType, true),
@@ -90,6 +94,59 @@ class DataFrameUtilsTest extends FunSuite
                               )
 
         val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schema))
+
+        val dfConcat = concatAxis(dfLeft, dfRight, axis=0)
+
+        val dfResultFinal =  dfResult.except(dfConcat)
+
+        assert(dfResultFinal.rdd.isEmpty == true)
+    }
+
+     test("Spark Concat - Index - 2") 
+    {
+       val schemaLeft = Array(StructField("c", StringType, true),
+                              StructField("b", IntegerType, true),
+                              StructField("a", StringType, true)
+                             )
+
+        val dataLeft = Array(Row("bola", 4, "SIM"),
+                             Row("ovo", 4, "SIM"),
+                             Row("sacola", 8, "NAO")
+                            )
+
+        val dfLeft = spark.createDataFrame(spark.sparkContext.parallelize(dataLeft),StructType(schemaLeft))
+
+        val schemaRight = Array(StructField("a", StringType, true),
+                                StructField("b", IntegerType, true),
+                                StructField("d", IntegerType, true),
+                                StructField("e", DoubleType, true)
+                               )
+
+        val dataRight = Array(Row("SIM", 4, 1, 22.33),
+                              Row("NAO", 5, 2, 22.1),
+                              Row("SIM", 8, 3, 903.3),
+                              Row("SIM", 32, 4, 99.0)
+                             )
+
+        val dfRight = spark.createDataFrame(spark.sparkContext.parallelize(dataRight),StructType(schemaRight))
+
+        val schemaResult = Array(StructField("e", DoubleType, true),
+                                 StructField("a", StringType, true),
+                                 StructField("b", IntegerType, true),
+                                 StructField("c", StringType, true),
+                                 StructField("d", IntegerType, true)
+                                )
+
+        val dataResult = Array(Row(null, "SIM", 4, "bola", null),
+                               Row(null, "SIM", 4, "ovo", null),
+                               Row(null, "NAO", 8, "sacola", null),
+                               Row(22.33, "SIM", 4, null, 1),
+                               Row(22.1, "NAO", 5, null, 2),
+                               Row(903.3, "SIM", 8, null, 3),
+                               Row(99.0, "SIM", 32, null, 4)
+                              )
+
+        val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
 
         val dfConcat = concatAxis(dfLeft, dfRight, axis=0)
 
@@ -129,7 +186,7 @@ class DataFrameUtilsTest extends FunSuite
                                  StructField("c", StringType, true),
                                  StructField("d", IntegerType, true),
                                  StructField("e", IntegerType, true),
-                                 StructField("f", StringType, true)
+                                 StructField("f", StringType, true) 
                                 )
         
         val dataResult = Array(Row(1, 4,"bola", 1, 4,"bola"),
@@ -182,7 +239,7 @@ class DataFrameUtilsTest extends FunSuite
 
         val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
 
-        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), sufixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true)
+        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), suffixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true, allSuffixes=true)
 
         val dfResultFinal =  dfResult.except(dfMerged)
 
@@ -224,7 +281,7 @@ class DataFrameUtilsTest extends FunSuite
 
         val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
 
-        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), sufixes=Array("_LEFT","_RIGHT"), how="outer")
+        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), suffixes=Array("_LEFT","_RIGHT"), how="outer", allSuffixes=true)
 
         val dfResultFinal =  dfResult.except(dfMerged)
 
@@ -269,7 +326,7 @@ class DataFrameUtilsTest extends FunSuite
 
         val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
     
-        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), sufixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true)
+        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), suffixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true, allSuffixes=true)
 
         val dfResultFinal =  dfResult.except(dfMerged)
 
@@ -315,7 +372,7 @@ class DataFrameUtilsTest extends FunSuite
 
         val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
     
-        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), sufixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true)
+        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), suffixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true, allSuffixes=true)
 
         val dfResultFinal =  dfResult.except(dfMerged)
 
@@ -359,7 +416,110 @@ class DataFrameUtilsTest extends FunSuite
 
         val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
     
-        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a","c"), rightOn=Array("a","b"), sufixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true)
+        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a","c"), rightOn=Array("a","b"), suffixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true, allSuffixes=true)
+
+        val dfResultFinal =  dfResult.except(dfMerged)
+
+        assert(dfResultFinal.rdd.isEmpty == true)
+    }
+
+    test("Spark Merge - Outer - 6") 
+    {
+        val schemaLeft = Array(StructField("a", IntegerType, true),
+                               StructField("b", IntegerType, true),
+                               StructField("c", StringType, true)
+                              )
+
+        val dataLeft = Array(Row(1, 4,"bola"),
+                             Row(2, 4,"ovo"),
+                             Row(3, 8,"sacola")
+                            )
+
+        val dfLeft = spark.createDataFrame(spark.sparkContext.parallelize(dataLeft),StructType(schemaLeft))
+
+        val schemaRight = Array(StructField("a", IntegerType, true),
+                                StructField("d", IntegerType, true),
+                                StructField("e", StringType, true)
+                               )
+
+        val dataRight = Array(Row(1, 4,"bola"),
+                              Row(2, 4,"ovo"),
+                              Row(3, 8,"sacola")
+                             )
+        
+        val dfRight = spark.createDataFrame(spark.sparkContext.parallelize(dataRight),StructType(schemaRight))
+
+        val schemaResult = Array(StructField("b", IntegerType, true),
+                                 StructField("c", StringType, true),
+                                 StructField("d", IntegerType, true),
+                                 StructField("e", StringType, true),
+                                 StructField("_merge", StringType, true),
+                                 StructField("a", IntegerType, true)
+                                )
+        
+        val dataResult = Array(Row(4, "bola", 4, "bola", "both", 1),
+                               Row(8, "sacola", 8, "sacola", "both", 3),
+                               Row(4, "ovo", 4, "ovo", "both", 2)
+                              )
+
+        val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
+
+        val dfMerged = merge(dfLeft, dfRight, leftOn=Array("a"), rightOn=Array("a"), suffixes=Array("_LEFT","_RIGHT"), how="outer", indicator=true)
+
+        val dfResultFinal =  dfResult.except(dfMerged)
+
+        assert(dfResultFinal.rdd.isEmpty == true)
+    }
+
+    test("Spark Merge - ComplexOn - 1") 
+    {
+        val schemaLeft = Array(StructField("a_LEFT", IntegerType, true),
+                           StructField("b_LEFT", IntegerType, true),
+                           StructField("c_LEFT", StringType, true)
+                          )
+
+        val dataLeft = Array(Row(1, 4,"bola"),
+                             Row(2, 4,"ovo"),
+                             Row(3, 8,"sacola")
+                            )
+
+        val dfLeft = spark.createDataFrame(spark.sparkContext.parallelize(dataLeft),StructType(schemaLeft))
+
+        val schemaRight = Array(StructField("a_RIGHT", IntegerType, true),
+                                StructField("b_RIGHT", IntegerType, true),
+                                StructField("c_RIGHT", StringType, true)
+                               )
+
+        val dataRight = Array(Row(1, 4,"bola"),
+                              Row(2, 5,"ovo"),
+                              Row(3, 8,"sacola")
+                             )
+        
+        val dfRight = spark.createDataFrame(spark.sparkContext.parallelize(dataRight),StructType(schemaRight))
+
+
+        val schemaResult = Array(StructField("a_LEFT", IntegerType, true),
+                                 StructField("b_LEFT", IntegerType, true),
+                                 StructField("c_LEFT", StringType, true),
+                                 StructField("a_RIGHT", IntegerType, true),
+                                 StructField("b_RIGHT", IntegerType, true),
+                                 StructField("c_RIGHT", StringType, true)
+                                )
+        
+        val dataResult = Array(Row(1, 4, "bola", null, null, null),
+                               Row(null, null, null, 1, 4, "bola"),
+                               Row(3, 8, "sacola", null, null, null),
+                               Row(null, null, null, 3, 8, "sacola"),
+                               Row(2, 4, "ovo", 2, 5, "ovo")
+                              )
+
+        val dfResult = spark.createDataFrame(spark.sparkContext.parallelize(dataResult),StructType(schemaResult))
+
+        val cond1 = dfLeft("a_LEFT") === dfRight("a_RIGHT")
+        val cond2 = dfLeft("b_LEFT") < dfRight("b_RIGHT")
+        val condf = cond1 && cond2
+
+        val dfMerged = merge(dfLeft, dfRight, complexOn=condf, how="outer")
 
         val dfResultFinal =  dfResult.except(dfMerged)
 
